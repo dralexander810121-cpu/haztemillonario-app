@@ -34,12 +34,11 @@ const RASPADITOS = [
 ];
 
 const CIUDADES = [
-  { nombre: 'Houston',     desc: 'La ciudad de los grandes jackpots',  img: 'https://images.unsplash.com/photo-1572205096924-35c2e2bfda38?w=600&q=80' },
+  { nombre: 'Houston',     desc: 'La ciudad de los grandes jackpots',  img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80' },
   { nombre: 'Dallas',      desc: 'Donde los sueños se hacen realidad', img: 'https://images.unsplash.com/photo-1546412414-8035e1776c9a?w=600&q=80' },
   { nombre: 'Austin',      desc: 'Capital del entretenimiento texano', img: 'https://images.unsplash.com/photo-1531218150217-54595bc2b934?w=600&q=80' },
-  { nombre: 'San Antonio', desc: 'Tradición y suerte en cada jugada',  img: 'https://images.unsplash.com/photo-1583172332547-c769395f05db?w=600&q=80' },
+  { nombre: 'San Antonio', desc: 'Tradición y suerte en cada jugada',  img: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80' },
 ];
-
 const RECOMPENSAS = [
   { accion: 'Compartir la app',  dias: '+1 día', emoji: '📲', desc: 'Comparte con tus amigos' },
   { accion: 'Valorar ⭐⭐⭐⭐⭐',  dias: '+1 día', emoji: '⭐', desc: 'Deja tu opinión' },
