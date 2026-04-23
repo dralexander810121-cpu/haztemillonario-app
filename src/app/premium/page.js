@@ -1,11 +1,11 @@
-import Link from 'next/link';
-import { Check } from 'lucide-react';
+// src/app/premium/page.js
+// Página de planes Premium con botones conectados a Stripe Checkout
 
-export const metadata = {
-  title: 'Hacete Premium — Hazte Millonario',
-  description:
-    'Planes Premium y Premium Plus: acceso total a charada, adivinanzas, interpretador de sueños, análisis histórico y más.',
-};
+'use client';
+
+import { useState } from 'react';
+import { Check } from 'lucide-react';
+import { createClient } from '@/lib/supabase-browser';
 
 const PLANES = [
   {
@@ -28,6 +28,9 @@ const PLANES = [
     sub: '/mes',
     cta: 'Probar 7 días gratis',
     destacado: true,
+    planId: 'premium_mensual',
+    planIdAnual: 'premium_anual',
+    precioAnual: '$39.99/año (ahorras ~33%)',
     f: [
       'Todo lo Gratis, sin anuncios',
       'Charada completa sin límite',
@@ -44,6 +47,9 @@ const PLANES = [
     p: '$9.99',
     sub: '/mes',
     cta: 'Empezar',
+    planId: 'premium_plus_mensual',
+    planIdAnual: 'premium_plus_anual',
+    precioAnual: '$79.99/año (ahorras ~33%)',
     f: [
       'Todo lo Premium',
       'Reporte semanal personalizado',
@@ -56,6 +62,49 @@ const PLANES = [
 ];
 
 export default function PremiumPage() {
+  const [cargando, setCargando] = useState(null);
+  const [facturacion, setFacturacion] = useState('mensual');
+
+  const comprar = async (plan) => {
+    try {
+      setCargando(plan.t);
+
+      // Verificamos si el usuario está logueado
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        // Si no tiene sesión, lo llevamos a registrarse
+        alert('Necesitas crear una cuenta primero.');
+        window.location.href = '/registro?plan=' + plan.t.toLowerCase().replace(' ', '_');
+        return;
+      }
+
+      const planId = facturacion === 'anual' ? plan.planIdAnual : plan.planId;
+
+      const resp = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId }),
+      });
+
+      const data = await resp.json();
+
+      if (!resp.ok) {
+        alert(data.error || 'Error al procesar. Intenta de nuevo.');
+        setCargando(null);
+        return;
+      }
+
+      // Redirige al Checkout de Stripe
+      window.location.href = data.url;
+    } catch (error) {
+      console.error(error);
+      alert('Error al procesar la suscripción. Intenta de nuevo.');
+      setCargando(null);
+    }
+  };
+
   return (
     <div className="fade-in max-w-6xl mx-auto px-4 md:px-8 py-10">
       <div className="text-center">
@@ -67,9 +116,29 @@ export default function PremiumPage() {
           Sin anuncios, acceso total, herramientas sin límite y una comunidad que comparte la
           pasión por la tradición y los números.
         </p>
+
+        {/* Toggle Mensual/Anual */}
+        <div className="inline-flex bg-ink-lighter/60 rounded-full p-1 mt-6 border border-cream/10">
+          <button
+            onClick={() => setFacturacion('mensual')}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
+              facturacion === 'mensual' ? 'bg-gold text-ink' : 'text-cream/70'
+            }`}
+          >
+            Mensual
+          </button>
+          <button
+            onClick={() => setFacturacion('anual')}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
+              facturacion === 'anual' ? 'bg-gold text-ink' : 'text-cream/70'
+            }`}
+          >
+            Anual <span className="text-xs opacity-70">(-33%)</span>
+          </button>
+        </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-5 mt-12">
+      <div className="grid md:grid-cols-3 gap-5 mt-10">
         {PLANES.map((pl) => (
           <div
             key={pl.t}
@@ -86,20 +155,32 @@ export default function PremiumPage() {
             )}
             <div className="font-display text-2xl text-cream font-bold">{pl.t}</div>
             <div className="flex items-baseline gap-1 mt-3">
-              <span className="font-display text-5xl text-gold-light font-black">{pl.p}</span>
-              <span className="text-cream/60 text-sm">{pl.sub}</span>
+              <span className="font-display text-5xl text-gold-light font-black">
+                {facturacion === 'anual' && pl.precioAnual
+                  ? pl.precioAnual.split('/')[0]
+                  : pl.p}
+              </span>
+              <span className="text-cream/60 text-sm">
+                {facturacion === 'anual' && pl.precioAnual ? '/año' : pl.sub}
+              </span>
             </div>
+            {pl.precioAnual && facturacion === 'mensual' && (
+              <div className="text-xs text-gold-light/70 mt-1">
+                O {pl.precioAnual}
+              </div>
+            )}
             <button
-              disabled={pl.alt}
+              disabled={pl.alt || cargando === pl.t}
+              onClick={() => !pl.alt && comprar(pl)}
               className={`w-full mt-5 py-2.5 rounded-md font-bold transition text-sm ${
                 pl.alt
                   ? 'bg-cream/10 text-cream/40 cursor-default'
                   : pl.destacado
-                  ? 'bg-gold text-ink hover:bg-gold-light'
-                  : 'bg-cream text-ink hover:bg-white'
+                  ? 'bg-gold text-ink hover:bg-gold-light disabled:opacity-50'
+                  : 'bg-cream text-ink hover:bg-white disabled:opacity-50'
               }`}
             >
-              {pl.cta}
+              {cargando === pl.t ? 'Procesando...' : pl.cta}
             </button>
             <ul className="mt-6 space-y-2.5">
               {pl.f.map((li, i) => (
@@ -114,8 +195,7 @@ export default function PremiumPage() {
       </div>
 
       <div className="text-center mt-10 text-xs text-cream/50">
-        Plan anual: Premium $39.99/año (ahorras ~33%) · Premium Plus $79.99/año. Cancela cuando
-        quieras.
+        Cancela cuando quieras. Sin compromisos. Acepta tarjetas de crédito/débito principales.
       </div>
 
       <div className="text-center mt-6 text-xs text-cream/40 italic max-w-lg mx-auto">
