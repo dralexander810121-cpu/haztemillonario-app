@@ -1,10 +1,18 @@
-// src/middleware.js
-// Middleware que refresca la sesión del usuario en cada request.
-// Sin esto, la sesión puede expirar y el usuario ver "no logueado"
-// aunque acabe de entrar.
-
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
+
+const RUTAS_PROTEGIDAS = [
+  '/dashboard',
+  '/cuenta',
+  '/charada',
+  '/sonar',
+  '/generador',
+  '/analisis',
+  '/adivinanzas',
+  '/resultados',
+  '/raspaditos',
+  '/premium/exito',
+];
 
 export async function middleware(request) {
   let supabaseResponse = NextResponse.next({ request });
@@ -14,13 +22,9 @@ export async function middleware(request) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
+        getAll() { return request.cookies.getAll(); },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
@@ -30,8 +34,22 @@ export async function middleware(request) {
     }
   );
 
-  // Refrescar la sesión
-  await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const pathname = request.nextUrl.pathname;
+  const esRutaProtegida = RUTAS_PROTEGIDAS.some((ruta) => pathname.startsWith(ruta));
+
+  if (esRutaProtegida && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/registro';
+    return NextResponse.redirect(url);
+  }
+
+  if (user && (pathname === '/login' || pathname === '/registro')) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/dashboard';
+    return NextResponse.redirect(url);
+  }
 
   return supabaseResponse;
 }
