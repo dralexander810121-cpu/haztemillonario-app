@@ -24,7 +24,7 @@ export default function CuentaPage() {
       setUsuario(user);
 
       const { data: prof } = await supabase
-        .from('perfiles')
+       .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
