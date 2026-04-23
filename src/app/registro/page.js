@@ -20,7 +20,7 @@ function FormularioRegistro() {
     e.preventDefault();
     setError('');
     if (password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
+      setError('La contrasena debe tener al menos 6 caracteres');
       return;
     }
     setCargando(true);
@@ -46,6 +46,7 @@ function FormularioRegistro() {
           nombre,
           plan: 'free',
           es_premium: false,
+          trial_started_at: new Date().toISOString(),
         });
       }
       router.push(planDestino ? `/premium?plan=${planDestino}` : '/dashboard');
@@ -70,7 +71,7 @@ function FormularioRegistro() {
         />
       </div>
       <div>
-        <label className="block text-cream/80 text-sm mb-1.5">Correo electrónico</label>
+        <label className="block text-cream/80 text-sm mb-1.5">Correo electronico</label>
         <input
           type="email"
           value={email}
@@ -82,7 +83,7 @@ function FormularioRegistro() {
         />
       </div>
       <div>
-        <label className="block text-cream/80 text-sm mb-1.5">Contraseña</label>
+        <label className="block text-cream/80 text-sm mb-1.5">Contrasena</label>
         <input
           type="password"
           value={password}
@@ -91,7 +92,7 @@ function FormularioRegistro() {
           minLength={6}
           autoComplete="new-password"
           className="w-full px-4 py-2.5 rounded-md bg-ink-lighter/60 border border-cream/20 text-cream focus:outline-none focus:border-gold"
-          placeholder="Mínimo 6 caracteres"
+          placeholder="Minimo 6 caracteres"
         />
       </div>
       {error && (
@@ -107,8 +108,8 @@ function FormularioRegistro() {
         {cargando ? 'Creando cuenta...' : 'Crear cuenta'}
       </button>
       <div className="text-center text-sm text-cream/60 pt-2">
-        ¿Ya tienes cuenta?{' '}
-        <Link href="/login" className="text-gold-light hover:underline">Inicia sesión</Link>
+        Ya tienes cuenta?{' '}
+        <Link href="/login" className="text-gold-light hover:underline">Inicia sesion</Link>
       </div>
     </form>
   );
@@ -120,15 +121,15 @@ export default function RegistroPage() {
       <div className="text-center mb-8">
         <div className="ornament mb-2">◆ ◆ ◆</div>
         <h1 className="font-display text-3xl text-gold-light font-bold">Crear cuenta</h1>
-        <p className="text-cream/70 text-sm mt-2">Únete a la comunidad de Hazte Millonario</p>
+        <p className="text-cream/70 text-sm mt-2">Unete a la comunidad de Hazte Millonario</p>
       </div>
       <Suspense fallback={<div className="text-cream/60 text-center">Cargando...</div>}>
         <FormularioRegistro />
       </Suspense>
       <p className="text-xs text-cream/40 text-center mt-6">
         Al registrarte aceptas nuestros{' '}
-        <Link href="/terminos" className="underline">términos</Link>{' '}y{' '}
-        <Link href="/privacidad" className="underline">política de privacidad</Link>.
+        <Link href="/terminos" className="underline">terminos</Link>{' '}y{' '}
+        <Link href="/privacidad" className="underline">politica de privacidad</Link>.
       </p>
     </div>
   );
