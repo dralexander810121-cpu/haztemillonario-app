@@ -40,9 +40,9 @@ function FormularioRegistro() {
         return;
       }
       if (data.user) {
-        await supabase.from('perfiles').upsert({
+        await supabase.from('profiles').upsert({
           id: data.user.id,
-          correo_electronico: email,
+          email: email,
           nombre,
           plan: 'free',
           es_premium: false,
