@@ -1,4 +1,3 @@
-// src/app/registro/page.js
 'use client';
 
 import { useState, Suspense } from 'react';
@@ -49,7 +48,7 @@ function FormularioRegistro() {
           es_premium: false,
         });
       }
-      router.push(planDestino ? `/premium?plan=${planDestino}` : '/cuenta');
+      router.push(planDestino ? `/premium?plan=${planDestino}` : '/');
       router.refresh();
     } catch (err) {
       setError(err.message || 'Error al crear la cuenta');
