@@ -1,3 +1,7 @@
+// src/lib/supabase-browser.js
+// Cliente de Supabase para usar en componentes del navegador ('use client').
+// Maneja cookies y sesión del usuario automáticamente.
+
 import { createBrowserClient } from '@supabase/ssr';
 
 export function createClient() {
