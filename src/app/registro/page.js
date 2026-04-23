@@ -31,7 +31,7 @@ function FormularioRegistro() {
         password,
         options: {
           data: { nombre },
-          emailRedirectTo: `${window.location.origin}/cuenta`,
+          emailRedirectTo: `${window.location.origin}/dashboard`,
         },
       });
       if (signUpError) {
@@ -40,15 +40,15 @@ function FormularioRegistro() {
         return;
       }
       if (data.user) {
-        await supabase.from('profiles').upsert({
+        await supabase.from('perfiles').upsert({
           id: data.user.id,
-          email,
+          correo_electronico: email,
           nombre,
           plan: 'free',
           es_premium: false,
         });
       }
-     router.push(planDestino ? `/premium?plan=${planDestino}` : '/dashboard');
+      router.push(planDestino ? `/premium?plan=${planDestino}` : '/dashboard');
       router.refresh();
     } catch (err) {
       setError(err.message || 'Error al crear la cuenta');
@@ -108,9 +108,7 @@ function FormularioRegistro() {
       </button>
       <div className="text-center text-sm text-cream/60 pt-2">
         ¿Ya tienes cuenta?{' '}
-        <Link href="/login" className="text-gold-light hover:underline">
-          Inicia sesión
-        </Link>
+        <Link href="/login" className="text-gold-light hover:underline">Inicia sesión</Link>
       </div>
     </form>
   );
@@ -122,9 +120,7 @@ export default function RegistroPage() {
       <div className="text-center mb-8">
         <div className="ornament mb-2">◆ ◆ ◆</div>
         <h1 className="font-display text-3xl text-gold-light font-bold">Crear cuenta</h1>
-        <p className="text-cream/70 text-sm mt-2">
-          Únete a la comunidad de Hazte Millonario
-        </p>
+        <p className="text-cream/70 text-sm mt-2">Únete a la comunidad de Hazte Millonario</p>
       </div>
       <Suspense fallback={<div className="text-cream/60 text-center">Cargando...</div>}>
         <FormularioRegistro />
