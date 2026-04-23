@@ -13,12 +13,12 @@ const REDES = [
 ];
 
 const LOTERIAS = [
-  { nombre: 'Powerball',      emoji: '🔴', sorteo: 'Lun · Mier · Sab', href: '/resultados?juego=powerball' },
-  { nombre: 'Mega Millions',  emoji: '💛', sorteo: 'Mar · Vier',        href: '/resultados?juego=megamillions' },
-  { nombre: 'Lotto Texas',    emoji: '⭐', sorteo: 'Mier · Sab',        href: '/resultados?juego=lotto' },
-  { nombre: 'Texas Two Step', emoji: '🤠', sorteo: 'Lun · Jue',         href: '/resultados?juego=twostep' },
-  { nombre: 'Pick 3',         emoji: '🎯', sorteo: 'Todos los dias',     href: '/resultados?juego=pick3' },
-  { nombre: 'Daily 4',        emoji: '🎰', sorteo: 'Todos los dias',     href: '/resultados?juego=daily4' },
+  { nombre: 'Powerball',      emoji: '🔴', sorteo: 'Lun Mier Sab', href: '/resultados?juego=powerball' },
+  { nombre: 'Mega Millions',  emoji: '💛', sorteo: 'Mar Vier',      href: '/resultados?juego=megamillions' },
+  { nombre: 'Lotto Texas',    emoji: '⭐', sorteo: 'Mier Sab',      href: '/resultados?juego=lotto' },
+  { nombre: 'Texas Two Step', emoji: '🤠', sorteo: 'Lun Jue',       href: '/resultados?juego=twostep' },
+  { nombre: 'Pick 3',         emoji: '🎯', sorteo: 'Todos los dias',href: '/resultados?juego=pick3' },
+  { nombre: 'Daily 4',        emoji: '🎰', sorteo: 'Todos los dias',href: '/resultados?juego=daily4' },
 ];
 
 const RASPADITOS = [
@@ -39,13 +39,13 @@ const CIUDADES = [
 ];
 
 const RECOMPENSAS = [
-  { accion: 'Compartir la app',  dias: '+1 dia', emoji: '📲', desc: 'Comparte con tus amigos' },
+  { accion: 'Compartir la app',    dias: '+1 dia', emoji: '📲', desc: 'Comparte con tus amigos' },
   { accion: 'Valorar 5 estrellas', dias: '+1 dia', emoji: '⭐', desc: 'Deja tu opinion' },
-  { accion: 'Seguir Facebook',   dias: '+1 dia', emoji: '📘', desc: 'Numeros ganadores diarios' },
-  { accion: 'Seguir Instagram',  dias: '+1 dia', emoji: '📸', desc: 'Contenido exclusivo' },
-  { accion: 'Seguir TikTok',     dias: '+1 dia', emoji: '🎵', desc: 'Videos de charada' },
-  { accion: 'Seguir YouTube',    dias: '+1 dia', emoji: '▶️', desc: 'Analisis y tutoriales' },
-  { accion: 'Invitar un amigo',  dias: '+1 dia', emoji: '🤝', desc: 'Tu amigo se registra' },
+  { accion: 'Seguir Facebook',     dias: '+1 dia', emoji: '📘', desc: 'Numeros ganadores diarios' },
+  { accion: 'Seguir Instagram',    dias: '+1 dia', emoji: '📸', desc: 'Contenido exclusivo' },
+  { accion: 'Seguir TikTok',       dias: '+1 dia', emoji: '🎵', desc: 'Videos de charada' },
+  { accion: 'Seguir YouTube',      dias: '+1 dia', emoji: '▶️', desc: 'Analisis y tutoriales' },
+  { accion: 'Invitar un amigo',    dias: '+1 dia', emoji: '🤝', desc: 'Tu amigo se registra' },
 ];
 
 export default function DashboardPage() {
@@ -98,7 +98,6 @@ export default function DashboardPage() {
 
   return (
     <div className="fade-in">
-
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=1600&q=80')" }} />
         <div className="absolute inset-0 bg-gradient-to-b from-ink/90 to-ink" />
@@ -125,8 +124,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </section>
-
-      {!esPremium && (
+{!esPremium && (
         <section className="max-w-6xl mx-auto px-4 md:px-8 py-10">
           <div className="card p-6 bg-gradient-to-r from-gold/10 to-wine/10 border-gold/30">
             <h2 className="font-display text-2xl text-gold-light font-bold mb-1">Gana 7 dias Premium gratis</h2>
@@ -168,7 +166,7 @@ export default function DashboardPage() {
         <div className="text-center mb-8">
           <div className="ornament mb-2 text-gold/60">◆ ◆ ◆</div>
           <h2 className="font-display text-4xl text-cream font-bold">Raspaditos Super Loteria</h2>
-          <p className="text-cream/60 mt-2">Tickets disponibles · Premios que quedan · Como jugar</p>
+          <p className="text-cream/60 mt-2">Tickets disponibles · Premios · Como jugar</p>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {RASPADITOS.map((r) => (
@@ -190,14 +188,14 @@ export default function DashboardPage() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { titulo: 'Charada',     desc: 'La charada cubana completa',  emoji: '🀄', href: '/charada' },
-            { titulo: 'Sonar',       desc: 'Interpreta tus suenos',       emoji: '🌙', href: '/sonar' },
-            { titulo: 'Generador',   desc: 'Crea combinaciones ganadoras',emoji: '🎲', href: '/generador' },
-            { titulo: 'Analisis',    desc: 'Estadisticas historicas',      emoji: '📊', href: '/analisis' },
-            { titulo: 'Adivinanzas', desc: 'Cultura cubana en juego',      emoji: '🧩', href: '/adivinanzas' },
-            { titulo: 'Resultados',  desc: 'Todos los sorteos',            emoji: '🎯', href: '/resultados' },
-            { titulo: 'Mi cuenta',   desc: 'Perfil y suscripcion',         emoji: '👤', href: '/cuenta' },
-            { titulo: 'Premium',     desc: 'Actualiza tu plan',            emoji: '👑', href: '/premium' },
+            { titulo: 'Charada',     desc: 'La charada cubana completa',   emoji: '🀄', href: '/charada' },
+            { titulo: 'Sonar',       desc: 'Interpreta tus suenos',        emoji: '🌙', href: '/sonar' },
+            { titulo: 'Generador',   desc: 'Crea combinaciones ganadoras', emoji: '🎲', href: '/generador' },
+            { titulo: 'Analisis',    desc: 'Estadisticas historicas',       emoji: '📊', href: '/analisis' },
+            { titulo: 'Adivinanzas', desc: 'Cultura cubana en juego',       emoji: '🧩', href: '/adivinanzas' },
+            { titulo: 'Resultados',  desc: 'Todos los sorteos',             emoji: '🎯', href: '/resultados' },
+            { titulo: 'Mi cuenta',   desc: 'Perfil y suscripcion',          emoji: '👤', href: '/cuenta' },
+            { titulo: 'Premium',     desc: 'Actualiza tu plan',             emoji: '👑', href: '/premium' },
           ].map((h) => (
             <Link key={h.titulo} href={h.href} className="card p-6 hover:border-gold/40 transition group text-center">
               <div className="text-4xl mb-3">{h.emoji}</div>
@@ -248,8 +246,14 @@ export default function DashboardPage() {
       {!esPremium && (
         <section className="max-w-4xl mx-auto px-4 md:px-8 py-16">
           <div className="card p-10 bg-gradient-to-br from-gold/10 to-wine/10 border-gold/30 glow text-center">
-            <div className="ornament mb-4">◆ ◆ ◆</div></div>
+            <div className="ornament mb-4">◆ ◆ ◆</div>
+            <h2 className="font-display text-4xl text-gold-light font-black">Hazte Premium</h2>
+            <p className="text-cream/70 mt-3 leading-relaxed max-w-xl mx-auto">Sin anuncios · Acceso total ilimitado · Analisis completo · Contenido exclusivo del Dr. Figueredo</p>
+            <Link href="/premium" className="inline-block mt-6 px-8 py-4 rounded-md bg-gold text-ink font-black text-lg hover:bg-gold-light transition">Ver planes desde $4.99/mes</Link>
+          </div>
+        </section>
+      )}
+
+    </div>
   );
 }
-            <h2 className="font-display text-4xl text-gold-light font-black">Hazte Premium</h2>
-            <p className="text-cream/70 mt-3 leading-relaxed max-w-xl mx-auto">Sin anuncios · Acceso total ilimitado · Anali
