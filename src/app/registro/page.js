@@ -48,7 +48,7 @@ function FormularioRegistro() {
           es_premium: false,
         });
       }
-      router.push(planDestino ? `/premium?plan=${planDestino}` : '/');
+     router.push(planDestino ? `/premium?plan=${planDestino}` : '/dashboard');
       router.refresh();
     } catch (err) {
       setError(err.message || 'Error al crear la cuenta');
