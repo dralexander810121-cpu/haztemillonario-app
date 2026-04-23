@@ -248,6 +248,8 @@ export default function DashboardPage() {
       {!esPremium && (
         <section className="max-w-4xl mx-auto px-4 md:px-8 py-16">
           <div className="card p-10 bg-gradient-to-br from-gold/10 to-wine/10 border-gold/30 glow text-center">
-            <div className="ornament mb-4">◆ ◆ ◆</div>
+            <div className="ornament mb-4">◆ ◆ ◆</div></div>
+  );
+}
             <h2 className="font-display text-4xl text-gold-light font-black">Hazte Premium</h2>
             <p className="text-cream/70 mt-3 leading-relaxed max-w-xl mx-auto">Sin anuncios · Acceso total ilimitado · Anali
