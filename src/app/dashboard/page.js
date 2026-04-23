@@ -172,13 +172,13 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {RASPADITOS.map((r) => (
-            <div key={r.precio} className={`rounded-xl p-5 bg-gradient-to-br ${r.color} border ${r.borde} hover:scale-105 transition cursor-pointer`}>
+            <Link key={r.precio} href="/raspaditos" className={`rounded-xl p-5 bg-gradient-to-br ${r.color} border ${r.borde} hover:scale-105 transition`}>
               <div className="text-3xl mb-2">{r.emoji}</div>
               <div className="font-display text-2xl text-white font-black">{r.precio}</div>
               <div className="text-white/80 text-sm font-bold mt-1">{r.nombre}</div>
               <div className="text-white/50 text-xs mt-2">{r.premio}</div>
               <div className="mt-3 text-xs text-white/60 border-t border-white/10 pt-2">Ver tickets →</div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
