@@ -1,22 +1,8 @@
 // src/app/api/stripe/webhook/route.js
-// Endpoint: POST /api/stripe/webhook
-//
-// Stripe envía eventos aquí cada vez que pasa algo importante:
-// - Usuario completó el pago inicial
-// - Se renovó una suscripción
-// - Se canceló una suscripción
-// - El pago falló
-//
-// Este endpoint verifica la firma del webhook (seguridad),
-// procesa el evento y actualiza Supabase en consecuencia.
-
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
-// Cliente de Supabase con service_role (bypass RLS)
-// Usamos esta clave especial porque el webhook no tiene sesión de usuario
-// y necesita actualizar tablas con políticas RLS.
 const getSupabaseAdmin = () => {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -49,7 +35,6 @@ export async function POST(request) {
 
   try {
     switch (event.type) {
-      // Usuario completó el checkout inicial con éxito
       case 'checkout.session.completed': {
         const session = event.data.object;
         const userId = session.metadata?.supabase_user_id ||
@@ -60,14 +45,11 @@ export async function POST(request) {
           break;
         }
 
-        // Obtenemos la suscripción completa para conocer los detalles
         const subscription = await stripe.subscriptions.retrieve(session.subscription);
-
         await actualizarSuscripcionUsuario(supabase, userId, subscription);
         break;
       }
 
-      // Suscripción creada, actualizada, o en cambio de estado
       case 'customer.subscription.created':
       case 'customer.subscription.updated': {
         const subscription = event.data.object;
@@ -82,7 +64,6 @@ export async function POST(request) {
         break;
       }
 
-      // Suscripción cancelada
       case 'customer.subscription.deleted': {
         const subscription = event.data.object;
         const userId = subscription.metadata?.supabase_user_id;
@@ -90,7 +71,7 @@ export async function POST(request) {
         if (!userId) break;
 
         await supabase
-          .from('profiles')
+          .from('perfiles')
           .update({
             es_premium: false,
             plan: 'free',
@@ -109,7 +90,6 @@ export async function POST(request) {
         break;
       }
 
-      // Un pago de renovación falló
       case 'invoice.payment_failed': {
         const invoice = event.data.object;
         const subscriptionId = invoice.subscription;
@@ -121,8 +101,6 @@ export async function POST(request) {
 
         if (!userId) break;
 
-        // Marcamos el pago como fallido, pero NO degradamos al usuario todavía.
-        // Stripe reintentará automáticamente los próximos días.
         await supabase.from('suscripciones_historial').insert({
           usuario_id: userId,
           evento: 'payment_failed',
@@ -132,7 +110,6 @@ export async function POST(request) {
       }
 
       default:
-        // Evento no manejado, lo ignoramos
         console.log(`Evento no manejado: ${event.type}`);
     }
 
@@ -146,9 +123,7 @@ export async function POST(request) {
   }
 }
 
-// Función auxiliar: actualiza el perfil del usuario con los datos de la suscripción
 async function actualizarSuscripcionUsuario(supabase, userId, subscription) {
-  // Determinamos el plan (premium vs premium_plus) según el precio
   const priceId = subscription.items.data[0]?.price?.id;
   let plan = 'free';
   if (priceId === process.env.STRIPE_PRICE_PREMIUM_MENSUAL ||
@@ -162,13 +137,13 @@ async function actualizarSuscripcionUsuario(supabase, userId, subscription) {
   const estaActiva = ['active', 'trialing'].includes(subscription.status);
 
   const { data: perfilAnterior } = await supabase
-    .from('profiles')
+    .from('perfiles')
     .select('plan')
     .eq('id', userId)
     .single();
 
   await supabase
-    .from('profiles')
+    .from('perfiles')
     .update({
       es_premium: estaActiva,
       plan: estaActiva ? plan : 'free',
@@ -180,7 +155,6 @@ async function actualizarSuscripcionUsuario(supabase, userId, subscription) {
     })
     .eq('id', userId);
 
-  // Guardar en el historial para auditoría
   await supabase.from('suscripciones_historial').insert({
     usuario_id: userId,
     plan_anterior: perfilAnterior?.plan || null,
