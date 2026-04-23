@@ -1,14 +1,12 @@
 // src/app/registro/page.js
-// Formulario de registro de nuevos usuarios
-
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase-browser';
 
-export default function RegistroPage() {
+function FormularioRegistro() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const planDestino = searchParams.get('plan');
@@ -22,18 +20,13 @@ export default function RegistroPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
     if (password.length < 6) {
       setError('La contraseña debe tener al menos 6 caracteres');
       return;
     }
-
     setCargando(true);
-
     try {
       const supabase = createClient();
-
-      // Crear la cuenta en Supabase Auth
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -42,14 +35,11 @@ export default function RegistroPage() {
           emailRedirectTo: `${window.location.origin}/cuenta`,
         },
       });
-
       if (signUpError) {
         setError(signUpError.message);
         setCargando(false);
         return;
       }
-
-      // Crear perfil en la tabla profiles
       if (data.user) {
         await supabase.from('profiles').upsert({
           id: data.user.id,
@@ -59,13 +49,7 @@ export default function RegistroPage() {
           es_premium: false,
         });
       }
-
-      // Si vino desde un plan específico, redirigir de vuelta a premium
-      if (planDestino) {
-        router.push(`/premium?plan=${planDestino}`);
-      } else {
-        router.push('/cuenta');
-      }
+      router.push(planDestino ? `/premium?plan=${planDestino}` : '/cuenta');
       router.refresh();
     } catch (err) {
       setError(err.message || 'Error al crear la cuenta');
@@ -74,89 +58,81 @@ export default function RegistroPage() {
   };
 
   return (
+    <form onSubmit={handleSubmit} className="card p-6 space-y-4">
+      <div>
+        <label className="block text-cream/80 text-sm mb-1.5">Nombre</label>
+        <input
+          type="text"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          required
+          className="w-full px-4 py-2.5 rounded-md bg-ink-lighter/60 border border-cream/20 text-cream focus:outline-none focus:border-gold"
+          placeholder="Tu nombre"
+        />
+      </div>
+      <div>
+        <label className="block text-cream/80 text-sm mb-1.5">Correo electrónico</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          autoComplete="email"
+          className="w-full px-4 py-2.5 rounded-md bg-ink-lighter/60 border border-cream/20 text-cream focus:outline-none focus:border-gold"
+          placeholder="tu@email.com"
+        />
+      </div>
+      <div>
+        <label className="block text-cream/80 text-sm mb-1.5">Contraseña</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          minLength={6}
+          autoComplete="new-password"
+          className="w-full px-4 py-2.5 rounded-md bg-ink-lighter/60 border border-cream/20 text-cream focus:outline-none focus:border-gold"
+          placeholder="Mínimo 6 caracteres"
+        />
+      </div>
+      {error && (
+        <div className="text-red-400 text-sm bg-red-900/20 border border-red-500/30 rounded-md p-3">
+          {error}
+        </div>
+      )}
+      <button
+        type="submit"
+        disabled={cargando}
+        className="w-full py-2.5 bg-gold text-ink rounded-md font-bold hover:bg-gold-light transition disabled:opacity-50"
+      >
+        {cargando ? 'Creando cuenta...' : 'Crear cuenta'}
+      </button>
+      <div className="text-center text-sm text-cream/60 pt-2">
+        ¿Ya tienes cuenta?{' '}
+        <Link href="/login" className="text-gold-light hover:underline">
+          Inicia sesión
+        </Link>
+      </div>
+    </form>
+  );
+}
+
+export default function RegistroPage() {
+  return (
     <div className="fade-in max-w-md mx-auto px-4 md:px-8 py-12">
       <div className="text-center mb-8">
         <div className="ornament mb-2">◆ ◆ ◆</div>
-        <h1 className="font-display text-3xl text-gold-light font-bold">
-          Crear cuenta
-        </h1>
+        <h1 className="font-display text-3xl text-gold-light font-bold">Crear cuenta</h1>
         <p className="text-cream/70 text-sm mt-2">
           Únete a la comunidad de Hazte Millonario
         </p>
       </div>
-
-      <form onSubmit={handleSubmit} className="card p-6 space-y-4">
-        <div>
-          <label className="block text-cream/80 text-sm mb-1.5">
-            Nombre
-          </label>
-          <input
-            type="text"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            required
-            className="w-full px-4 py-2.5 rounded-md bg-ink-lighter/60 border border-cream/20 text-cream focus:outline-none focus:border-gold"
-            placeholder="Tu nombre"
-          />
-        </div>
-
-        <div>
-          <label className="block text-cream/80 text-sm mb-1.5">
-            Correo electrónico
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-            className="w-full px-4 py-2.5 rounded-md bg-ink-lighter/60 border border-cream/20 text-cream focus:outline-none focus:border-gold"
-            placeholder="tu@email.com"
-          />
-        </div>
-
-        <div>
-          <label className="block text-cream/80 text-sm mb-1.5">
-            Contraseña
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-            autoComplete="new-password"
-            className="w-full px-4 py-2.5 rounded-md bg-ink-lighter/60 border border-cream/20 text-cream focus:outline-none focus:border-gold"
-            placeholder="Mínimo 6 caracteres"
-          />
-        </div>
-
-        {error && (
-          <div className="text-red-400 text-sm bg-red-900/20 border border-red-500/30 rounded-md p-3">
-            {error}
-          </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={cargando}
-          className="w-full py-2.5 bg-gold text-ink rounded-md font-bold hover:bg-gold-light transition disabled:opacity-50"
-        >
-          {cargando ? 'Creando cuenta...' : 'Crear cuenta'}
-        </button>
-
-        <div className="text-center text-sm text-cream/60 pt-2">
-          ¿Ya tienes cuenta?{' '}
-          <Link href="/login" className="text-gold-light hover:underline">
-            Inicia sesión
-          </Link>
-        </div>
-      </form>
-
+      <Suspense fallback={<div className="text-cream/60 text-center">Cargando...</div>}>
+        <FormularioRegistro />
+      </Suspense>
       <p className="text-xs text-cream/40 text-center mt-6">
         Al registrarte aceptas nuestros{' '}
-        <Link href="/terminos" className="underline">términos</Link>
-        {' '}y{' '}
+        <Link href="/terminos" className="underline">términos</Link>{' '}y{' '}
         <Link href="/privacidad" className="underline">política de privacidad</Link>.
       </p>
     </div>
