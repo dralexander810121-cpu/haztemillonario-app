@@ -8,26 +8,30 @@ const supabaseAdmin = () => createClient(
 );
 
 const JUEGOS_TX = [
-  { id: 'powerball',   url: 'https://www.txlottery.org/export/sites/lottery/Games/Powerball/Winning_Numbers/powerball.csv' },
-  { id: 'mega',        url: 'https://www.txlottery.org/export/sites/lottery/Games/Mega_Millions/Winning_Numbers/megamillions.csv' },
-  { id: 'lotto-tx',    url: 'https://www.txlottery.org/export/sites/lottery/Games/Lotto_Texas/Winning_Numbers/lotto.csv' },
-  { id: 'two-step',    url: 'https://www.txlottery.org/export/sites/lottery/Games/Texas_Two_Step/Winning_Numbers/twostep.csv' },
-  { id: 'pick3-day',   url: 'https://www.txlottery.org/export/sites/lottery/Games/Pick_3/Winning_Numbers/pick3.csv' },
-  { id: 'daily4-day',  url: 'https://www.txlottery.org/export/sites/lottery/Games/Daily_4/Winning_Numbers/daily4.csv' },
+  { id: 'powerball',  url: 'https://www.txlottery.org/export/sites/lottery/Games/Powerball/Winning_Numbers/powerball.csv' },
+  { id: 'mega',       url: 'https://www.txlottery.org/export/sites/lottery/Games/Mega_Millions/Winning_Numbers/megamillions.csv' },
+  { id: 'lotto-tx',   url: 'https://www.txlottery.org/export/sites/lottery/Games/Lotto_Texas/Winning_Numbers/lotto.csv' },
+  { id: 'two-step',   url: 'https://www.txlottery.org/export/sites/lottery/Games/Texas_Two_Step/Winning_Numbers/twostep.csv' },
+  { id: 'pick3-day',  url: 'https://www.txlottery.org/export/sites/lottery/Games/Pick_3/Winning_Numbers/pick3.csv' },
+  { id: 'daily4-day', url: 'https://www.txlottery.org/export/sites/lottery/Games/Daily_4/Winning_Numbers/daily4.csv' },
 ];
 
 async function obtenerUltimosSorteos(url) {
   try {
     const resp = await fetch(url, { next: { revalidate: 0 } });
     const texto = await resp.text();
-    const lineas = texto.trim().split('\n').slice(1, 6);
+    const lineas = texto.trim().split('\n').slice(0, 6);
     return lineas.map((linea) => {
       const cols = linea.split(',');
+      const mes = cols[1]?.trim().padStart(2,'0');
+      const dia = cols[2]?.trim().padStart(2,'0');
+      const año = cols[3]?.trim();
+      const fecha = `${año}-${mes}-${dia}`;
       return {
-        fecha: cols[0]?.trim(),
-        numeros: cols.slice(1, 6).map(n => parseInt(n?.trim())).filter(n => !isNaN(n)),
-        numero_extra: parseInt(cols[6]?.trim()) || null,
-        multiplier: cols[7]?.trim() || null,
+        fecha,
+        numeros: cols.slice(4, 9).map(n => parseInt(n?.trim())).filter(n => !isNaN(n)),
+        numero_extra: parseInt(cols[9]?.trim()) || null,
+        multiplier: cols[10]?.trim() || null,
       };
     }).filter(s => s.fecha && s.numeros.length > 0);
   } catch (err) {
@@ -41,10 +45,8 @@ export async function GET(request) {
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
-
   const supabase = supabaseAdmin();
   const resultados = [];
-
   for (const juego of JUEGOS_TX) {
     const sorteos = await obtenerUltimosSorteos(juego.url);
     for (const sorteo of sorteos) {
@@ -55,11 +57,9 @@ export async function GET(request) {
         numero_extra: sorteo.numero_extra,
         multiplier: sorteo.multiplier,
       }, { onConflict: 'juego_id,fecha' });
-
       if (!error) resultados.push(`${juego.id} - ${sorteo.fecha}`);
     }
   }
-
   return NextResponse.json({
     mensaje: `Actualizados ${resultados.length} sorteos`,
     sorteos: resultados,
