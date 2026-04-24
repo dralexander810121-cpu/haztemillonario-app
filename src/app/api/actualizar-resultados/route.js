@@ -20,7 +20,7 @@ async function obtenerUltimosSorteos(url) {
   try {
     const resp = await fetch(url, { next: { revalidate: 0 } });
     const texto = await resp.text();
-    const lineas = texto.trim().split('\n').slice(0, 6);
+    const lineas = texto.trim().split('\n').slice(-6);
     return lineas.map((linea) => {
       const cols = linea.split(',');
       const mes = cols[1]?.trim().padStart(2,'0');
