@@ -131,6 +131,7 @@ export default function DashboardPage() {
   const nombre = perfil?.nombre || 'amigo';
   const plan = perfil?.plan || 'free';
   const esPremium = perfil?.es_premium || false;
+  const esAdmin = perfil?.email === 'dralexander810121@gmail.com';
   const tiempo = formatTiempo(tiempoRestante);
   return (
     <div className="fade-in">
@@ -144,6 +145,9 @@ export default function DashboardPage() {
               <div className="ornament mb-2 text-gold/60 text-sm">◆ ◆ ◆</div>
               <h1 className="font-display text-4xl md:text-5xl text-gold-light font-black">Bienvenido, {nombre}!</h1>
               <p className="text-cream/60 mt-2">Plan: <span className={`font-bold ${esPremium ? 'text-gold-light' : 'text-cream/80'}`}>{plan === 'free' ? 'Gratis' : plan === 'premium' ? 'Premium' : 'Premium Plus'}</span></p>
+              {perfil?.bonos > 0 && (
+                <p className="text-cream/60 mt-1">Bonos: <span className="text-gold-light font-bold">{perfil.bonos}</span></p>
+              )}
             </div>
             {tiempo && (
               <div className="card px-6 py-4 bg-gold/10 border-gold/40 text-center">
@@ -164,7 +168,7 @@ export default function DashboardPage() {
 
       {mensajeRecompensa && (
         <div className="fixed top-6 right-6 z-50 bg-gold text-ink px-6 py-3 rounded-xl font-bold shadow-2xl animate-bounce">
-          🎁 {mensajeRecompensa}
+          {mensajeRecompensa}
         </div>
       )}
 
@@ -174,32 +178,16 @@ export default function DashboardPage() {
             <h2 className="font-display text-2xl text-gold-light font-bold mb-1">Gana 7 dias Premium gratis</h2>
             <p className="text-cream/60 text-sm mb-5">Cada accion te da 1 dia. Completa las 7 y tienes una semana entera.</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
-
-              <div
-                onClick={compartir}
-                className={`card p-3 text-center transition cursor-pointer ${recompensas.includes('compartir') ? 'border-gold/60 bg-gold/10' : 'hover:border-gold/40'}`}
-              >
+              <div onClick={compartir} className={`card p-3 text-center transition cursor-pointer ${recompensas.includes('compartir') ? 'border-gold/60 bg-gold/10' : 'hover:border-gold/40'}`}>
                 <div className="text-2xl mb-1">📲</div>
                 <div className="text-gold-light font-black text-sm">+1 dia</div>
                 <div className="text-cream/60 text-xs mt-0.5">Compartir</div>
                 {recompensas.includes('compartir') && <div className="text-green-400 text-xs mt-1">✓ Listo</div>}
               </div>
-
-              <div
-                onClick={() => {
-                  if (estrellas === 5 && !recompensas.includes('valorar')) {
-                    acreditarRecompensa('valorar');
-                  }
-                }}
-                className={`card p-3 text-center transition cursor-pointer ${recompensas.includes('valorar') ? 'border-gold/60 bg-gold/10' : 'hover:border-gold/40'}`}
-              >
+              <div onClick={() => { if (estrellas === 5 && !recompensas.includes('valorar')) { acreditarRecompensa('valorar'); } }} className={`card p-3 text-center transition cursor-pointer ${recompensas.includes('valorar') ? 'border-gold/60 bg-gold/10' : 'hover:border-gold/40'}`}>
                 <div className="flex justify-center gap-0.5 mb-1">
                   {[1,2,3,4,5].map((s) => (
-                    <span
-                      key={s}
-                      onClick={(e) => { e.stopPropagation(); setEstrellas(s); }}
-                      className={`text-lg cursor-pointer ${s <= estrellas ? 'text-gold-light' : 'text-cream/20'}`}
-                    >★</span>
+                    <span key={s} onClick={(e) => { e.stopPropagation(); setEstrellas(s); }} className={`text-lg cursor-pointer ${s <= estrellas ? 'text-gold-light' : 'text-cream/20'}`}>★</span>
                   ))}
                 </div>
                 <div className="text-gold-light font-black text-sm">+1 dia</div>
@@ -207,41 +195,23 @@ export default function DashboardPage() {
                 {recompensas.includes('valorar') && <div className="text-green-400 text-xs mt-1">✓ Listo</div>}
                 {estrellas === 5 && !recompensas.includes('valorar') && <div className="text-gold-light text-xs mt-1">Toca para confirmar</div>}
               </div>
-
               {REDES.map((r) => (
-                <div
-                  key={r.accion}
-                  onClick={() => abrirRed(r)}
-                  className={`card p-3 text-center transition cursor-pointer ${recompensas.includes(r.accion) ? 'border-gold/60 bg-gold/10' : 'hover:border-gold/40'}`}
-                >
+                <div key={r.accion} onClick={() => abrirRed(r)} className={`card p-3 text-center transition cursor-pointer ${recompensas.includes(r.accion) ? 'border-gold/60 bg-gold/10' : 'hover:border-gold/40'}`}>
                   <div className="text-2xl mb-1">{r.emoji}</div>
                   <div className="text-gold-light font-black text-sm">+1 dia</div>
                   <div className="text-cream/60 text-xs mt-0.5">{r.nombre}</div>
                   {recompensas.includes(r.accion) && <div className="text-green-400 text-xs mt-1">✓ Listo</div>}
                 </div>
               ))}
-
-              <div
-                onClick={() => {
-                  const link = `https://haztemillonario.com/registro?ref=${userId}`;
-                  navigator.clipboard.writeText(link);
-                  setMensajeRecompensa('Link copiado! Comparte con tu amigo');
-                  setTimeout(() => setMensajeRecompensa(''), 3000);
-                }}
-                className="card p-3 text-center hover:border-gold/40 transition cursor-pointer"
-              >
+              <div onClick={() => { const link = `https://haztemillonario.com/registro?ref=${userId}`; navigator.clipboard.writeText(link); setMensajeRecompensa('Link copiado! Comparte con tu amigo'); setTimeout(() => setMensajeRecompensa(''), 3000); }} className="card p-3 text-center hover:border-gold/40 transition cursor-pointer">
                 <div className="text-2xl mb-1">🤝</div>
                 <div className="text-gold-light font-black text-sm">+1 dia</div>
                 <div className="text-cream/60 text-xs mt-0.5">Invitar amigo</div>
               </div>
-
             </div>
             <div className="mt-4 flex items-center gap-2">
               <div className="h-2 bg-cream/10 rounded-full flex-1 overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-gold to-gold-light rounded-full transition-all duration-500"
-                  style={{ width: `${(recompensas.length / 7) * 100}%` }}
-                />
+                <div className="h-full bg-gradient-to-r from-gold to-gold-light rounded-full transition-all duration-500" style={{ width: `${(recompensas.length / 7) * 100}%` }} />
               </div>
               <span className="text-cream/60 text-xs">{recompensas.length}/7</span>
             </div>
@@ -301,8 +271,9 @@ export default function DashboardPage() {
             { titulo: 'Analisis',    desc: 'Estadisticas historicas',       emoji: '📊', href: '/analisis' },
             { titulo: 'Adivinanzas', desc: 'Cultura cubana en juego',       emoji: '🧩', href: '/adivinanzas' },
             { titulo: 'Resultados',  desc: 'Todos los sorteos',             emoji: '🎯', href: '/resultados' },
+            { titulo: 'Bolita',      desc: 'Juega la bolita cubana',        emoji: '🎰', href: '/bonos' },
             { titulo: 'Mi cuenta',   desc: 'Perfil y suscripcion',          emoji: '👤', href: '/cuenta' },
-            { titulo: 'Premium',     desc: 'Actualiza tu plan',             emoji: '👑', href: '/premium' },
+            ...(esAdmin ? [{ titulo: 'Admin', desc: 'Panel de administracion', emoji: '⚙️', href: '/admin' }] : []),
           ].map((h) => (
             <Link key={h.titulo} href={h.href} className="card p-6 hover:border-gold/40 transition group text-center">
               <div className="text-4xl mb-3">{h.emoji}</div>
@@ -340,16 +311,10 @@ export default function DashboardPage() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {REDES.map((r) => (
-            <button
-              key={r.nombre}
-              onClick={() => abrirRed(r)}
-              className={`flex flex-col items-center gap-3 p-6 rounded-xl text-white font-bold transition ${r.bg} ${recompensas.includes(r.accion) ? 'opacity-70' : ''}`}
-            >
+            <button key={r.nombre} onClick={() => abrirRed(r)} className={`flex flex-col items-center gap-3 p-6 rounded-xl text-white font-bold transition ${r.bg} ${recompensas.includes(r.accion) ? 'opacity-70' : ''}`}>
               <span className="text-4xl">{r.emoji}</span>
               <span>{r.nombre}</span>
-              <span className="text-xs opacity-70 font-normal">
-                {recompensas.includes(r.accion) ? '✓ Dia acreditado' : '+1 dia gratis al seguir'}
-              </span>
+              <span className="text-xs opacity-70 font-normal">{recompensas.includes(r.accion) ? 'Dia acreditado' : '+1 dia gratis al seguir'}</span>
             </button>
           ))}
         </div>
