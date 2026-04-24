@@ -12,6 +12,7 @@ const RUTAS_PROTEGIDAS = [
   '/resultados',
   '/raspaditos',
   '/premium/exito',
+  '/bonos',
 ];
 
 export async function middleware(request) {
