@@ -7,7 +7,7 @@ export const metadata = {
     'Resultados oficiales de Powerball, Mega Millions, Lotto Texas, Texas Two Step, Cash Five, Pick 3, Daily 4 y All or Nothing. Actualizados diariamente.',
 };
 
-export const revalidate = 300; // 5 min
+export const revalidate = 0;
 
 export default async function ResultadosPage() {
   const supabase = createClient();
