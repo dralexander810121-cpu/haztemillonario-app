@@ -1,1 +1,10 @@
-
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.haztemillonario.twa",
+    "sha256_cert_fingerprints": [
+      "B3:F1:11:23:3C:35:35:3C:45:57:CA:45:6E:1F:8C:78:3E:12:73:14:03:CF:AE:87:D9:32:31:A1:47:18:C8:8A"
+    ]
+  }
+}]
