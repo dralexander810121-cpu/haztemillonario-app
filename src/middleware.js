@@ -16,6 +16,14 @@ const RUTAS_PROTEGIDAS = [
   '/admin',
 ];
 
+const RUTAS_PUBLICAS = [
+  '/privacidad',
+  '/terminos',
+  '/login',
+  '/registro',
+  '/premium',
+];
+
 export async function middleware(request) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -37,9 +45,9 @@ export async function middleware(request) {
   );
 
   const { data: { user } } = await supabase.auth.getUser();
-
   const pathname = request.nextUrl.pathname;
   const esRutaProtegida = RUTAS_PROTEGIDAS.some((ruta) => pathname.startsWith(ruta));
+  const esRutaPublica = RUTAS_PUBLICAS.some((ruta) => pathname.startsWith(ruta));
 
   if (esRutaProtegida && !user) {
     const url = request.nextUrl.clone();
