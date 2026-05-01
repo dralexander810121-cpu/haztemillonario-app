@@ -14,18 +14,21 @@ const JUEGOS_TX = [
   { id: 'two-step',   url: 'https://www.txlottery.org/export/sites/lottery/Games/Texas_Two_Step/Winning_Numbers/twostep.csv' },
   { id: 'pick3-day',  url: 'https://www.txlottery.org/export/sites/lottery/Games/Pick_3/Winning_Numbers/pick3.csv' },
   { id: 'daily4-day', url: 'https://www.txlottery.org/export/sites/lottery/Games/Daily_4/Winning_Numbers/daily4.csv' },
+  { id: 'cash5',      url: 'https://www.txlottery.org/export/sites/lottery/Games/Cash_Five/Winning_Numbers/cash5.csv' },
+  { id: 'all-or-nothing', url: 'https://www.txlottery.org/export/sites/lottery/Games/All_or_Nothing/Winning_Numbers/allnothing.csv' },
 ];
 
-async function obtenerUltimosSorteos(url) {
+async function obtenerTodosSorteos(url) {
   try {
-    const resp = await fetch(url, { next: { revalidate: 0 } });
+    const resp = await fetch(url, { cache: 'no-store' });
     const texto = await resp.text();
-    const lineas = texto.trim().split('\n').slice(-6);
+    const lineas = texto.trim().split('\n').slice(-30);
     return lineas.map((linea) => {
       const cols = linea.split(',');
       const mes = cols[1]?.trim().padStart(2,'0');
       const dia = cols[2]?.trim().padStart(2,'0');
       const año = cols[3]?.trim();
+      if (!mes || !dia || !año || año.length !== 4) return null;
       const fecha = `${año}-${mes}-${dia}`;
       return {
         fecha,
@@ -33,9 +36,9 @@ async function obtenerUltimosSorteos(url) {
         numero_extra: parseInt(cols[9]?.trim()) || null,
         multiplier: cols[10]?.trim() || null,
       };
-    }).filter(s => s.fecha && s.numeros.length > 0);
+    }).filter(s => s && s.fecha && s.numeros.length > 0);
   } catch (err) {
-    console.error('Error obteniendo sorteos:', err);
+    console.error('Error:', err);
     return [];
   }
 }
@@ -47,8 +50,9 @@ export async function GET(request) {
   }
   const supabase = supabaseAdmin();
   const resultados = [];
+
   for (const juego of JUEGOS_TX) {
-    const sorteos = await obtenerUltimosSorteos(juego.url);
+    const sorteos = await obtenerTodosSorteos(juego.url);
     for (const sorteo of sorteos) {
       const { error } = await supabase.from('sorteos').upsert({
         juego_id: juego.id,
@@ -60,6 +64,7 @@ export async function GET(request) {
       if (!error) resultados.push(`${juego.id} - ${sorteo.fecha}`);
     }
   }
+
   return NextResponse.json({
     mensaje: `Actualizados ${resultados.length} sorteos`,
     sorteos: resultados,
